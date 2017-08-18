@@ -22,15 +22,29 @@
 #                                                                       #
 #########################################################################
 
-set -ex
 set -o errexit
 set -o nounset
 set -o pipefail
 
+test=false
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -t) test=true; ;;
+    esac
+    shift
+done
+
 bazel build //...
 workspace=$(bazel info workspace)
 
-echo Copying files into sources:
-pushd $(bazel info bazel-genfiles)
-  find . -type f -name "*.pb.go" -exec \cp -f {} ${workspace}/{} \;
-popd
+if [[ $test = true ]]; then
+  echo Comparing generated files:
+  pushd $(bazel info bazel-genfiles)
+    find . -type f -name "*.pb.go" -exec diff {} ${workspace}/{} \;
+  popd
+else
+  echo Copying files into sources:
+  pushd $(bazel info bazel-genfiles)
+    find . -type f -name "*.pb.go" -exec \cp -f {} ${workspace}/{} \;
+  popd
+fi
