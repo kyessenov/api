@@ -1,5 +1,16 @@
-load("@io_bazel_rules_go//go:def.bzl", "gazelle", "go_prefix")
+load("@io_bazel_rules_go//go:def.bzl", "go_prefix")
+load("@io_bazel_rules_go//proto:go_proto_library.bzl", "go_proto_library")
 
-go_prefix("istio.io/pilot")
+package(default_visibility = ["//visibility:public"])
 
-gazelle(name = "gazelle")
+go_prefix("istio.io/api")
+
+go_proto_library(
+    name = "go_default_library",
+    srcs = glob(["proxy/v1/config/*.proto"]),
+    deps = [
+        "@com_github_golang_protobuf//ptypes/any:go_default_library",
+        "@com_github_golang_protobuf//ptypes/duration:go_default_library",
+        "@com_github_golang_protobuf//ptypes/wrappers:go_default_library",
+    ],
+)
